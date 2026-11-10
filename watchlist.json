@@ -1,27 +1,15 @@
 {
   "watchlist": [
-    {
-      "symbol": "ONDO",
-      "holding": true
-    },
-    {
-      "symbol": "ETH",
-      "holding": true
-    },
-    {
-      "symbol": "SOL",
-      "holding": true
-    }
-    {
-      "symbol": "BTC",
-      "holding": true
-    }
-  ]
-  "notify": {
-    "channels": [
-      "telegram"
-    ]
-  },
+    {"symbol": "ONDO", "holding": true},
+    {"symbol": "RENDER", "holding": true},
+    {"symbol": "ENA", "holding": true},
+    {"symbol": "WLD", "holding": true},
+    {"symbol": "AXL", "holding": true},
+    {"symbol": "ETH", "holding": true},
+    {"symbol": "SOL", "holding": true},
+    {"symbol": "BTC", "holding": true}
+  ],
+  "notify": {"channels": ["telegram"]},
   "db_path": "data/aoi.db",
   "coinbase_base_url": "https://api.exchange.coinbase.com",
   "docs_dir": "docs"
