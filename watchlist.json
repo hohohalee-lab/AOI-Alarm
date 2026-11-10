@@ -12,7 +12,11 @@
       "symbol": "SOL",
       "holding": true
     }
-  ],
+    {
+      "symbol": "BTC",
+      "holding": true
+    }
+  ]
   "notify": {
     "channels": [
       "telegram"
