@@ -27,7 +27,8 @@ function posBlock(s) {
   return `<h3>내 보유</h3><div class="grid">${kv('보유수량', p.qty.toLocaleString('en-US', {maximumFractionDigits: 2}))}${kv('수익률', pct(p.ret), cls(p.ret))}
 ${kv('매수평균가', px(p.avg_usd))}${kv('현재가', px(s.close))}
 ${kv('매수금액', usd(p.cost_usd))}${kv('평가금액', usd(p.value_usd))}
-${kv('평가손익', usd(p.pnl_usd), cls(p.pnl_usd))}${kv('업비트 평균가', '₩' + p.avg_krw.toLocaleString('en-US'))}</div>`;
+${kv('평가손익', usd(p.pnl_usd), cls(p.pnl_usd))}${kv('내 비중', p.weight == null ? 'n/a' : Math.round(p.weight * 100) + '%')}
+${kv('업비트 평균가', '₩' + p.avg_krw.toLocaleString('en-US'))}${kv('매도 알림 기준', (p.sell_pct == null ? 100 : p.sell_pct) + '% 매도')}</div>`;
 }
 function totalCard() {
   const L = (ST.symbols || []).filter(s => s.position); if (!L.length) return '';
