@@ -1,15 +1,16 @@
 {
   "watchlist": [
-    {"symbol": "ONDO", "holding": true},
-    {"symbol": "RENDER", "holding": true},
-    {"symbol": "ENA", "holding": true},
-    {"symbol": "WLD", "holding": true},
-    {"symbol": "AXL", "holding": true},
+    {"symbol": "ONDO", "holding": true, "qty": 118283.16859027, "avg_buy_krw": 772.6},
+    {"symbol": "RENDER", "holding": true, "qty": 1159.30307965, "avg_buy_krw": 6363.4},
+    {"symbol": "ENA", "holding": true, "qty": 3865.83135427, "avg_buy_krw": 536.0},
+    {"symbol": "WLD", "holding": true, "qty": 1204.71759192, "avg_buy_krw": 11810},
+    {"symbol": "AXL", "holding": true, "qty": 4929.27965617, "avg_buy_krw": 2176.8},
     {"symbol": "ETH", "holding": true},
     {"symbol": "SOL", "holding": true},
     {"symbol": "BTC", "holding": true}
   ],
   "notify": {"channels": ["telegram"]},
+  "fx_fallback_krw": 1400,
   "db_path": "data/aoi.db",
   "coinbase_base_url": "https://api.exchange.coinbase.com",
   "docs_dir": "docs"
