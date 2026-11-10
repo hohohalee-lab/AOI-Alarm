@@ -17,6 +17,7 @@ async function load() {
   if (!ST || !ST.symbols || !ST.symbols.length) { b.hidden = false; b.textContent = '아직 데이터가 없습니다. 저장소의 자동 실행(Actions)을 한 번 실행하면 채워집니다.'; }
   else if (Date.now() - new Date(gen).getTime() > 36 * 3600 * 1000) { b.hidden = false; b.textContent = '마지막 갱신이 36시간 넘게 지났습니다. 자동 실행이 멈췄을 수 있어요. 저장소 Actions 탭을 확인하세요.'; }
   else b.hidden = true;
+  if (ST && ST.skipped && ST.skipped.length) { b.hidden = false; b.textContent = '데이터를 못 가져와 제외된 종목: ' + ST.skipped.join(', ') + ' (거래소 미상장이거나 심볼이 다를 수 있어요)'; }
   render();
 }
 function kv(k, v, c) { return `<div class="kv"><span>${k}</span><b class="${c || ''}">${v}</b></div>`; }
