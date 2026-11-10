@@ -3,6 +3,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const pct = (x, d = 1) => x == null ? 'n/a' : (x * 100 >= 0 ? '+' : '') + (x * 100).toFixed(d) + '%';
 const px = x => x == null ? 'n/a' : x >= 1 ? '$' + x.toLocaleString('en-US', {maximumFractionDigits: 2}) : x >= .01 ? '$' + x.toFixed(4) : '$' + x.toFixed(6);
+const usd = x => x == null ? 'n/a' : (x < 0 ? '-' : '') + '$' + Math.abs(x).toLocaleString('en-US', {maximumFractionDigits: 0});
 const cls = x => x == null ? '' : x >= 0 ? 'pos' : 'neg';
 let ST = null, HI = null, tab = 'status', fs = 'ALL', fc = 'ALL';
 
@@ -21,13 +22,27 @@ async function load() {
   render();
 }
 function kv(k, v, c) { return `<div class="kv"><span>${k}</span><b class="${c || ''}">${v}</b></div>`; }
+function posBlock(s) {
+  const p = s.position; if (!p) return '';
+  return `<h3>내 보유</h3><div class="grid">${kv('보유수량', p.qty.toLocaleString('en-US', {maximumFractionDigits: 2}))}${kv('수익률', pct(p.ret), cls(p.ret))}
+${kv('매수평균가', px(p.avg_usd))}${kv('현재가', px(s.close))}
+${kv('매수금액', usd(p.cost_usd))}${kv('평가금액', usd(p.value_usd))}
+${kv('평가손익', usd(p.pnl_usd), cls(p.pnl_usd))}${kv('업비트 평균가', '₩' + p.avg_krw.toLocaleString('en-US'))}</div>`;
+}
+function totalCard() {
+  const L = (ST.symbols || []).filter(s => s.position); if (!L.length) return '';
+  const c = L.reduce((a, s) => a + s.position.cost_usd, 0), v = L.reduce((a, s) => a + s.position.value_usd, 0);
+  const fx = ST.fx && ST.fx.krw ? `환율 ₩${Math.round(ST.fx.krw).toLocaleString('en-US')}/$${ST.fx.source === 'live' ? '' : ' (고정값 사용 중)'}` : '환율 없음';
+  const top = L.map(s => [s.symbol, s.position.value_usd / v]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(x => x[0] + ' ' + Math.round(x[1] * 100) + '%').join(' · ');
+  return `<section class="card"><h3>내 보유 합계 (달러 환산)</h3><div class="grid">${kv('매수금액', usd(c))}${kv('평가금액', usd(v))}${kv('평가손익', usd(v - c), cls(v - c))}${kv('수익률', pct(v / c - 1), cls(v - c))}</div><div class="small">비중 ${top}<br>${fx} · 매수평균가도 현재 환율로 환산해서, 당시 환율 변동과 업비트·코인베이스 가격 차이만큼 업비트 표시 수익률과 다릅니다.</div></section>`;
+}
 function statusCard(s) {
   const i = s.indicators || {}, inn = s.state === 'IN';
   const items = (s.next?.items || []).map(x => `<div class="it"><div class="ck ${x.ok ? 'ok' : ''}">${x.ok ? '✓' : ''}</div><div>${esc(x.label)}${x.gap != null ? ` <span class="gap">(현재 ${pct(x.gap)})</span>` : ''}${x.note ? `<div class="small">${esc(x.note)}</div>` : ''}</div></div>`).join('');
   const to = s.next?.timeout ? `<div class="small">매도 후 ${s.next.timeout.days}일이 지나면 돌파 없이도 재진입 알람 (${s.next.timeout.left}일 남음)</div>` : '';
   const A = s.A || {triggers: [], flags: []};
   const sold = !inn && s.sell_date ? `<div class="small">매도 알람 ${esc(s.sell_date)}${s.sell_price ? ' · ' + px(s.sell_price) + ' → 현재 ' + pct(s.close / s.sell_price - 1) : ''}</div>` : '';
-  return `<section class="card"><div class="row"><div><span class="sym">${esc(s.symbol)}</span> <span class="chip ${inn ? 'in' : 'out'}">${inn ? '보유(IN)' : '현금 대기(OUT)'}</span></div><div class="px">${px(s.close)}</div></div>${sold}
+  return `<section class="card"><div class="row"><div><span class="sym">${esc(s.symbol)}</span> <span class="chip ${inn ? 'in' : 'out'}">${inn ? '보유(IN)' : '현금 대기(OUT)'}</span></div><div class="px">${px(s.close)}</div></div>${sold}${posBlock(s)}
 <h3>매도·재진입형 — ${esc(s.next?.title || '')}</h3>${items}${to}
 <h3>지표 현황</h3><div class="grid">
 ${kv('RSI14', i.rsi == null ? 'n/a' : i.rsi.toFixed(0) + ' (5일 전 ' + (i.rsi_5d_ago == null ? 'n/a' : i.rsi_5d_ago.toFixed(0)) + ')')}${kv('EMA20 대비', pct(i.vs_ema20), cls(i.vs_ema20))}
@@ -56,7 +71,7 @@ function infoView() {
 }
 function render() {
   const v = $('#view'); document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  if (tab === 'status') v.innerHTML = (ST && ST.symbols && ST.symbols.length) ? ST.symbols.map(statusCard).join('') : '<div class="empty">표시할 종목이 없습니다</div>';
+  if (tab === 'status') v.innerHTML = (ST && ST.symbols && ST.symbols.length) ? totalCard() + ST.symbols.map(statusCard).join('') : '<div class="empty">표시할 종목이 없습니다</div>';
   else if (tab === 'history') v.innerHTML = historyView(); else v.innerHTML = infoView();
 }
 document.querySelector('nav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { tab = b.dataset.tab; render(); scrollTo(0, 0); } });
