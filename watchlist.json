@@ -1,0 +1,24 @@
+{
+  "watchlist": [
+    {
+      "symbol": "ONDO",
+      "holding": true
+    },
+    {
+      "symbol": "ETH",
+      "holding": true
+    },
+    {
+      "symbol": "SOL",
+      "holding": true
+    }
+  ],
+  "notify": {
+    "channels": [
+      "telegram"
+    ]
+  },
+  "db_path": "data/aoi.db",
+  "coinbase_base_url": "https://api.exchange.coinbase.com",
+  "docs_dir": "docs"
+}
