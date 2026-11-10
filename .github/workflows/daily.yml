@@ -1,1 +1,33 @@
-
+name: aoi-alarm
+on:
+  schedule:
+    - cron: '10 0 * * *'
+    - cron: '40 0 * * *'
+  workflow_dispatch:
+    inputs:
+      test_notify:
+        description: '텔레그램 테스트 알림 보내기'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: aoi
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: unzip -qo aoi_alarm.zip -d _app
+      - run: bash _app/aoi_alarm/ci/run.sh
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TEST_NOTIFY: ${{ github.event.inputs.test_notify }}
+      - name: Save
+        run: |
+          git config user.name aoi-bot; git config user.email aoi-bot@users.noreply.github.com
+          git add watchlist.json docs state
+          git diff --cached --quiet || (git commit -m "update" && git pull --rebase && git push)
